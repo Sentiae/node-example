@@ -1,72 +1,141 @@
-name: "my-test-node"
-version: "1.0.0"
-description: "A simple test node to demonstrate functionality."
-author: "Test User <test@example.com>"
-license: "MIT"
-tags:
-  - "example"
-  - "test"
-  - "getting-started"
-icon: "mdi:robot"
-color: "#4CAF50"
-
-execution_model: "EXECUTION_MODEL_SERVER"
-
-input_ports:
-  - name: "input_text"
-    display_name: "Input Text"
-    description: "The text to be processed."
-    type: "PORT_TYPE_STRING"
-    required: true
-  - name: "input_number"
-    display_name: "Input Number"
-    description: "A number for processing."
-    type: "PORT_TYPE_NUMBER"
-    required: false
-    default_value: "42"
-
-output_ports:
-  - name: "output_text"
-    display_name: "Output Text"
-    description: "The processed text."
-    type: "PORT_TYPE_STRING"
-
-config_fields:
-  - name: "api_key"
-    display_name: "API Key"
-    description: "The API key for an external service."
-    type: "PORT_TYPE_SECRET"
-    required: true
-  - name: "processing_mode"
-    display_name: "Processing Mode"
-    description: "The mode for processing the text."
-    type: "PORT_TYPE_SELECT"
-    required: true
-    default_value: "mode1"
-    options:
-      - "mode1"
-      - "mode2"
-      - "mode3"
-
-runtime: "python"
-entry_point: "main.py"
-dependencies:
-  - "requests==2.28.1"
-
-documentation_url: "https://github.com/your-repo/my-test-node/blob/main/README.md"
-readme: |
-  # My Test Node
-  This is a simple node for testing and demonstration purposes.
-  It takes a string and a number, processes them, and returns a string.
-
-examples:
-  - name: "Example 1"
-    description: "A basic example of how to use the node."
-    config:
-      api_key: "your-api-key"
-      processing_mode: "mode1"
-    inputs:
-      input_text: "Hello, world!"
-      input_number: "123"
-    expected_outputs:
-      output_text: "Processed: Hello, world! with number 123" 
+apiVersion: v1
+kind: Node
+metadata:
+  name: example-node
+  version: 1.0.0
+  description: "A sample node for the Sentiae marketplace"
+  author: "Sentiae Team"
+  license: MIT
+  keywords:
+    - example
+    - sample
+    - demo
+    - data-processing
+  repository: https://github.com/Sentiae/node-example
+  homepage: https://github.com/Sentiae/node-example
+  
+spec:
+  category: data-processing
+  runtime: javascript
+  entryPoint: index.js
+  
+  # Resource requirements
+  resources:
+    cpu: 100m
+    memory: 256Mi
+    
+  # Input ports
+  inputs:
+    - name: data
+      type: any
+      description: "Input data to process"
+      required: true
+    - name: config
+      type: object
+      description: "Configuration options"
+      required: false
+      
+  # Output ports
+  outputs:
+    - name: result
+      type: any
+      description: "Processed result"
+    - name: metadata
+      type: object
+      description: "Processing metadata"
+      
+  # Dependencies
+  dependencies:
+    - name: lodash
+      version: ^4.17.21
+      type: runtime
+    - name: axios
+      version: ^1.6.0
+      type: runtime
+      
+  # Configuration fields
+  config:
+    fields:
+      - name: timeout
+        type: number
+        description: "Processing timeout in seconds"
+        default: 30
+        validation:
+          min: 1
+          max: 300
+      - name: retries
+        type: number
+        description: "Number of retry attempts"
+        default: 3
+        validation:
+          min: 0
+          max: 10
+      - name: debug
+        type: boolean
+        description: "Enable debug logging"
+        default: false
+        
+  # UI configuration
+  ui:
+    icon: "📊"
+    color: "#4CAF50"
+    position:
+      x: 100
+      y: 100
+    size:
+      width: 200
+      height: 150
+      
+  # Quality gates
+  quality:
+    testCoverage: 80.0
+    securityScore: 95
+    performanceScore: 85.0
+    documentationScore: 90.0
+    gates:
+      - type: test_coverage
+        threshold: 80.0
+        required: true
+      - type: security_score
+        threshold: 85
+        required: true
+        
+  # Documentation
+  documentation:
+    readme: |
+      # Example Node
+      
+      This is an example node that demonstrates the basic structure
+      and capabilities of a Sentiae marketplace node.
+      
+      ## Usage
+      
+      Connect input data to the `data` port and configure the node
+      using the available configuration options.
+      
+      ## Features
+      
+      - Data processing with configurable timeout
+      - Retry mechanism for failed operations
+      - Debug logging support
+      - Comprehensive error handling
+      
+    examples:
+      - name: basic-usage
+        description: "Basic data processing example"
+        code: |
+          // Example usage in a workflow
+          {
+            "timeout": 60,
+            "retries": 5,
+            "debug": true
+          }
+      - name: batch-processing
+        description: "Batch processing example"
+        code: |
+          // Process multiple items
+          {
+            "timeout": 120,
+            "retries": 3,
+            "debug": false
+          }
