@@ -1,141 +1,217 @@
 apiVersion: v1
 kind: Node
 metadata:
-  name: example-node
+  name: test-node
   version: 1.0.0
-  description: "A sample node for the Sentiae marketplace"
+  description: "A test node for the Sentiae marketplace"
   author: "Sentiae Team"
   license: MIT
   keywords:
+    - test
     - example
-    - sample
-    - demo
     - data-processing
   repository: https://github.com/Sentiae/node-example
   homepage: https://github.com/Sentiae/node-example
+  labels:
+    tier: "production"
+    team: "data-team"
   
 spec:
   category: data-processing
+  type: function
   runtime: javascript
-  entryPoint: index.js
+  language: javascript
+  entrypoint: index.js
   
+  # Environment variables
+  environment:
+    NODE_ENV: production
+    LOG_LEVEL: info
+    
   # Resource requirements
   resources:
     cpu: 100m
     memory: 256Mi
+    gpu: false
     
-  # Input ports
-  inputs:
-    - name: data
-      type: any
-      description: "Input data to process"
-      required: true
-    - name: config
-      type: object
-      description: "Configuration options"
+  # Security settings
+  security:
+    permissions:
+      - read:data
+      - write:output
+    sandbox: true
+    trusted: false
+
+# Configuration schema
+config:
+  fields:
+    - name: timeout
+      type: number
+      description: "Processing timeout in seconds"
       required: false
-      
-  # Output ports
-  outputs:
-    - name: result
-      type: any
-      description: "Processed result"
-    - name: metadata
-      type: object
-      description: "Processing metadata"
-      
-  # Dependencies
-  dependencies:
-    - name: lodash
-      version: ^4.17.21
-      type: runtime
-    - name: axios
-      version: ^1.6.0
-      type: runtime
-      
-  # Configuration fields
-  config:
-    fields:
-      - name: timeout
-        type: number
-        description: "Processing timeout in seconds"
-        default: 30
-        validation:
-          min: 1
-          max: 300
-      - name: retries
-        type: number
-        description: "Number of retry attempts"
-        default: 3
-        validation:
-          min: 0
-          max: 10
-      - name: debug
-        type: boolean
-        description: "Enable debug logging"
-        default: false
-        
-  # UI configuration
-  ui:
-    icon: "📊"
-    color: "#4CAF50"
-    position:
-      x: 100
-      y: 100
-    size:
-      width: 200
-      height: 150
-      
-  # Quality gates
-  quality:
-    testCoverage: 80.0
-    securityScore: 95
-    performanceScore: 85.0
-    documentationScore: 90.0
-    gates:
-      - type: test_coverage
-        threshold: 80.0
-        required: true
-      - type: security_score
-        threshold: 85
-        required: true
-        
-  # Documentation
-  documentation:
-    readme: |
-      # Example Node
-      
-      This is an example node that demonstrates the basic structure
-      and capabilities of a Sentiae marketplace node.
-      
-      ## Usage
-      
-      Connect input data to the `data` port and configure the node
-      using the available configuration options.
-      
-      ## Features
-      
-      - Data processing with configurable timeout
-      - Retry mechanism for failed operations
-      - Debug logging support
-      - Comprehensive error handling
-      
-    examples:
-      - name: basic-usage
-        description: "Basic data processing example"
-        code: |
-          // Example usage in a workflow
-          {
-            "timeout": 60,
-            "retries": 5,
-            "debug": true
-          }
-      - name: batch-processing
-        description: "Batch processing example"
-        code: |
-          // Process multiple items
-          {
-            "timeout": 120,
-            "retries": 3,
-            "debug": false
-          }
+      default_value: "30"
+      validation:
+        min_value: 1
+        max_value: 300
+    - name: retries
+      type: number
+      description: "Number of retry attempts"
+      required: false
+      default_value: "3"
+      validation:
+        min_value: 0
+        max_value: 10
+    - name: debug
+      type: boolean
+      description: "Enable debug logging"
+      required: false
+      default_value: "false"
+  defaults:
+    timeout: "30"
+    retries: "3"
+    debug: "false"
+
+# Input/Output ports
+inputs:
+  - name: data
+    type: any
+    description: "Input data to process"
+    required: true
+    trigger_execution: true
+  - name: config
+    type: object
+    description: "Configuration options"
+    required: false
+    trigger_execution: false
+
+outputs:
+  - name: result
+    type: any
+    description: "Processed result"
+    required: true
+  - name: metadata
+    type: object
+    description: "Processing metadata"
+    required: false
+
+# Dependencies
+dependencies:
+  - name: lodash
+    version_constraint: "^4.17.21"
+    type: DEPENDENCY_TYPE_RUNTIME
+    optional: false
+    description: "Utility library"
+  - name: axios
+    version_constraint: "^1.6.0"
+    type: DEPENDENCY_TYPE_RUNTIME
+    optional: false
+    description: "HTTP client"
+
+# Exports (what this node provides)
+exports:
+  - name: processData
+    type: function
+    description: "Main data processing function"
+    schema:
+      input: "any"
+      output: "any"
+
+# Execution configuration
+execution:
+  runtime: javascript
+  entry_point: index.js
+  environment:
+    NODE_ENV: production
+    LOG_LEVEL: info
+  resources:
+    cpu: 100m
+    memory: 256Mi
+    storage: 1Gi
+    capabilities:
+      - "network"
+      - "filesystem"
+  timeout_seconds: 300
+  supports_parallel: true
+
+# UI configuration
+ui:
+  icon: "📊"
+  color: "#4CAF50"
+  category: "data-processing"
+  tags:
+    - "transformer"
+    - "data"
+  position:
+    x: 100
+    y: 100
+  size:
+    width: 200
+    height: 150
+
+# Documentation
+documentation:
+  readme: |
+    # Test Node
+    
+    This is a comprehensive test node that demonstrates all available
+    configuration options in the Sentiae marketplace.
+    
+    ## Usage
+    
+    Connect input data to the `data` port and configure the node
+    using the available configuration options.
+    
+    ## Features
+    
+    - Data processing with configurable timeout
+    - Retry mechanism for failed operations
+    - Debug logging support
+    - Comprehensive error handling
+    
+  changelog: |
+    ## [1.0.0] - 2024-01-01
+    ### Added
+    - Initial release
+    - Basic data processing functionality
+    - Configuration options
+    
+  examples:
+    - |
+      // Basic usage example
+      {
+        "timeout": 60,
+        "retries": 5,
+        "debug": true
+      }
+  api_reference: |
+    ## API Reference
+    
+    ### processData(input, config)
+    
+    Main processing function.
+    
+    **Parameters:**
+    - `input` (any): Input data to process
+    - `config` (object): Configuration options
+    
+    **Returns:** Processed result
+    
+  guides:
+    - "https://docs.sentiae.com/nodes/data-processing"
+    - "https://docs.sentiae.com/nodes/configuration"
+
+# Quality gates
+quality:
+  gates:
+    - type: QUALITY_GATE_TYPE_TEST_COVERAGE
+      threshold: 80.0
+      required: true
+      description: "Minimum test coverage"
+    - type: QUALITY_GATE_TYPE_SECURITY_SCORE
+      threshold: 85.0
+      required: true
+      description: "Security score threshold"
+  test_coverage: 85.0
+  security_score: 90
+  performance_score: 88.0
+  documentation_score: 92.0 
